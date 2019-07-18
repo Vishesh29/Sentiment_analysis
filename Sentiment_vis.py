@@ -24,18 +24,10 @@ df = pd.concat(frames)
 # Shuffling the data
 df = df.sample(frac=1)
 
-
-# In[4]:
-
 # printing the first few lines of the dataframe
 df.head()
 
-
-# In[5]:
-
-
 # Visualizing the characteristics of classes in the dataset
-
 class_stat={}
 class_stat['0'] = df[df['Sentiment']==0].shape[0]
 class_stat['1'] = df[df['Sentiment']==1].shape[0]
@@ -49,19 +41,9 @@ plt.ylabel("Count of sentences")
 plt.title("Visualization of all the classes in the dataset")
 plt.show()
 
-
-# In[6]:
-
-
 print("Printing the shape of dataframe:",df.shape)
 phrase_list = list(df['Phrase'])
 print("Printing the first two sentences:", phrase_list[:2])
-
-
-# In[7]:
-
-
-# Cleaning the data
 
 def clean_text(text):
     text = text.lower()
@@ -83,16 +65,10 @@ def clean_text(text):
 
 phrase_list = [clean_text(text) for text in phrase_list]
 
-
-# In[8]:
-
-
 # Creating a dictionary to hold all the unique token indexes
-
 vocab_dict = {} # consist the vocabulary for the corpus
 token = 0 # For token index
-for sent in phrase_list:
-    
+for sent in phrase_list:    
 # Getting words from a sentence
     words = nltk.word_tokenize(sent)
 # Inserting start of sentence and end of sentence
@@ -107,28 +83,14 @@ for sent in phrase_list:
         else:
             pass
 
-
-# In[9]:
-
-
 print("size of the vocabulaury :",len(vocab_dict))
-
-
-# In[10]:
-
 
 print("Printing the shape of training dataframe:",train.shape)
 train_text = list(train['Phrase'])
 print("Printing the first two sentences:", train_text[:2])
 
-
-# In[11]:
-
-
 # Cleaning the data
-
 def clean_text(text):
-
     text = text.lower()
     text = re.sub(r"what's", "what is ", text)
     text = re.sub(r"\'s", " ", text)
@@ -147,49 +109,27 @@ def clean_text(text):
 
 train_text = [clean_text(text) for text in train_text]
 
-
-# In[12]:
-
-
 # Using the dictionary to vectorize the sentences.
-
 tokenized_sent = []
-
 for sent in train_text:
-
     # Tokenizes the sentences into list of words
     sent = nltk.word_tokenize(sent)
     # Inserting start of sentence and end of sentence
     sent.insert(0,"<sos>")
-
     sent = [vocab_dict[token.lower()] for token in sent]
     tokenized_sent.append(sent)
-
-
-# In[13]:
-
 
 # Vectorizing sentences in dataframe
 train['Phrase'] = tokenized_sent
 train = train[np.isfinite(train['Sentiment'])]
 train.head()
 
-
-# In[14]:
-
-
 print("Printing the shape of training dataframe:",test.shape)
 test_text = list(test['Phrase'])
 print("Printing the first two sentences:", test_text[:2])
 
-
-# In[15]:
-
-
 # Cleaning the data
-
 def clean_text(text):
-
     text = text.lower()
     text = re.sub(r"what's", "what is ", text)
     text = re.sub(r"\'s", " ", text)
@@ -208,14 +148,9 @@ def clean_text(text):
 
 test_text = [clean_text(text) for text in test_text]
 
-
-# In[16]:
-
-
 # Using the dictionary to vectorize the sentences.
 
 tokenized_sent = []
-
 for sent in test_text:
     # Tokenizes the sentences into list of words
     sent = nltk.word_tokenize(sent)
@@ -223,21 +158,12 @@ for sent in test_text:
     sent.insert(0,"<sos>")
     sent.insert(len(sent),"<eos>")
     sent = [vocab_dict[token.lower()] for token in sent]
-
     tokenized_sent.append(sent)
-
-
-# In[17]:
-
 
 # Vectorizing sentences in dataframe
 test['Phrase'] = tokenized_sent
 #test = test[np.isfinite(test['Sentiment'])]
 test.head()
-
-
-# In[18]:
-
 
 X_train = np.array(train['Phrase'])
 y_train = np.array(train['Sentiment'])
@@ -248,33 +174,21 @@ max_length_X_train = max(length_X_train)
 max_length_X_test = max(length_X_test)
 max_length = max(max_length_X_train,max_length_X_test)
 
-
-# In[19]:
-
-
 print('Pad sequences (samples x time)')
 x_train = sequence.pad_sequences(X_train, maxlen=max_length)
 x_test = sequence.pad_sequences(X_test, maxlen=max_length)
 print('x_train shape:', x_train.shape)
 print('x_test shape:', x_test.shape)
 print('y_train shape',y_train.shape)
-
-
-# In[20]:
-
-
+      
 #Splitting data into training and validation set 
-
 X_train, X_test, y_train, y_test = train_test_split(x_train, y_train, test_size=0.2, random_state=1)
-
 # Model configurations
 max_features = len(vocab_dict)
 batch_size = 32
 nhid = 64
 epochs = 10
-
 print('Building model...')
-
 model = Sequential()
 model.add(Embedding(max_features, nhid))
 model.add(LSTM(nhid, dropout=0.2, recurrent_dropout=0.2))
@@ -287,23 +201,13 @@ model.add(Dense(len(list(train['Sentiment'].unique())), activation='softmax'))
 model.compile(loss='sparse_categorical_crossentropy',
              optimizer='adam',
              metrics=['accuracy'])
-
 history = model.fit(X_train, y_train, batch_size=batch_size, epochs=epochs, verbose=1, validation_split=0.1)
-
-
-# In[21]:
-
 
 score = model.evaluate(X_test, y_test,batch_size=batch_size, verbose=1)
 print('Test Loss:', score[0])
 print('Test accuracy:', score[1])
 
-
-# In[24]:
-
-
 # Saving the model
-
 model.save('lstm_model.h5')  # creates a HDF5 file 'my_model.h5'
 # Loading the model
 model = load_model('lstm_model.h5')
@@ -317,16 +221,3 @@ df = pd.DataFrame.from_dict(value_dict,orient='index')
 df['PhraseId'] = df.index
 df.columns = ['Sentiment', 'PhraseId']
 df.to_csv("output_sentiment.tsv", sep='\t')
-
-
-# In[25]:
-
-
-
-
-
-# In[ ]:
-
-
-
-
