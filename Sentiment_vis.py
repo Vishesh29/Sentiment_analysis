@@ -60,7 +60,6 @@ def clean_text(text):
     text = re.sub('\W', ' ', text)
     text = re.sub('\s+', ' ', text)
     text = text.strip(' ')
-
     return text
 
 phrase_list = [clean_text(text) for text in phrase_list]
