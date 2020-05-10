@@ -4,3 +4,12 @@ positive, negative or neutral. Sometimes, the third attribute is not taken to ke
 In recent tasks, sentiments like "somewhat positive" and "somewhat negative" are also being considered.
 The phrases correspond to short movie reviews, and each one of them conveys different sentiments.
 
+In this project The sentiment labels are:
+0 - negative
+1 - somewhat negative
+2 - neutral
+3 - somewhat positive
+4 - positive
+
+
+
